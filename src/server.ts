@@ -3,6 +3,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import assistantRoutes from "./routes/assistantRoutes";
+import alzaidDataRoutes from "./routes/alzaidDataRoutes";
 
 const app = express();
 const port = 3000;
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
     res.send('Hello, Dementia App API is working!');
 });
 app.use('/assistant', assistantRoutes);
+app.use('/alzaid', alzaidDataRoutes);
 
 // Iniciar el servidor
 app.listen(port, () => {
