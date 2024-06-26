@@ -5,5 +5,6 @@ export interface UserQuestion {
 
 export interface Options {
   threadId: string,
-  assistantId?: string
+  assistantId?: string,
+  runId?: string
 }
