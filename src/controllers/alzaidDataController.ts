@@ -35,3 +35,7 @@ export const fetchActivitiesRecords = async (req: Request, res: Response) => {
 export const fetchPhysioRecords = async (req: Request, res: Response) => {
     fetchRecords(req, res, 'physio');
 };
+
+export const fetchEvaluationsRecords = async (req: Request, res: Response) => {
+    fetchRecords(req, res, 'evaluations');
+};

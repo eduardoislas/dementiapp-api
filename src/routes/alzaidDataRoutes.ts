@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import {
     fetchActivitiesRecords,
-    fetchBehaviorsRecords,
+    fetchBehaviorsRecords, fetchEvaluationsRecords,
     fetchHygieneRecords, fetchPhysioRecords,
     fetchVitalSignsRecords
 } from "../controllers/alzaidDataController";
@@ -13,5 +13,6 @@ router.get('/hygiene', fetchHygieneRecords);
 router.get('/behaviors', fetchBehaviorsRecords);
 router.get('/activities', fetchActivitiesRecords);
 router.get('/physio', fetchPhysioRecords);
+router.get('/evaluations', fetchEvaluationsRecords);
 
 export default router;
