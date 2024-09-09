@@ -1,17 +1,19 @@
 import {Request, Response} from "express";
-import {Options, UserQuestion} from "../models/assistantModel";
+import {UserQuestion} from "../models/assistantModel";
 import {
     checkCompletedStatus,
-    createMessage,
-    getThreadMessagesList,
+    createMessage, getLastThreadMessage,
     initThread,
     runMessage
 } from "../services/assistantServices"
+import { getLogger } from '../clients/logger';
 
 export const createThread = async (req: Request, res: Response) => {
+    const logger = getLogger();
     try {
         const thread = await initThread();
         if (thread) {
+            logger.info(`Thread creado ${thread}`);
             res.status(200).json({message: 'Thread created', thread});
         }
     } catch (error) {
@@ -20,6 +22,7 @@ export const createThread = async (req: Request, res: Response) => {
 }
 
 export const userQuestion = async (req: Request, res: Response) => {
+    const logger = getLogger();
     try {
         const userQuestion: UserQuestion = req.body.userQuestion;
         if (!userQuestion || !userQuestion.threadId || !userQuestion.question) {
@@ -35,10 +38,11 @@ export const userQuestion = async (req: Request, res: Response) => {
         }
         const run = await runMessage({threadId: userQuestion.threadId, assistantId: assistantId});
         await checkCompletedStatus({threadId: userQuestion.threadId, runId: run.id});
-        const messages = await getThreadMessagesList({threadId: userQuestion.threadId})
-        res.status(200).json({messages: messages.reverse()});
+        // const messages = await getThreadMessagesList({threadId: userQuestion.threadId})
+        const lastMessage = await getLastThreadMessage({threadId: userQuestion.threadId})
+        logger.info(`Mensaje para el thread ${userQuestion.threadId} obtenido`)
+        res.status(200).json({message: lastMessage});
     } catch (error) {
         res.status(500).json({message: 'Internal server error'});
     }
-
 }

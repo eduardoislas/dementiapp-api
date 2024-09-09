@@ -53,3 +53,16 @@ export const getThreadMessagesList = async (options: Options) => {
         content: message.content.map((content: any) => content.text.value)
     }));
 }
+
+export const getLastThreadMessage = async (options: Options) => {
+    const { threadId } = options;
+    const messageList = await openai.beta.threads.messages.list(threadId) as MessagesPage;
+    if (!messageList || !messageList.data || messageList.data.length === 0) {
+        throw new Error('No messages found or failed to retrieve message list');
+    }
+    const lastMessage = messageList.data[0];
+    return {
+        role: lastMessage.role,
+        content: lastMessage.content.map((content: any) => content.text.value)
+    };
+}
