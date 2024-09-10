@@ -6,7 +6,8 @@ import cors from 'cors';
 import {getLogger, initializeLogger} from './clients/logger';
 import assistantRoutes from './routes/assistantRoutes';
 import alzaidDataRoutes from './routes/alzaidDataRoutes';
-import {DBclient} from './clients/mongoDBClient';
+import {connectDB} from './clients/mongoDBClient';
+import userRoutes from "./routes/userRoutes";
 
 const app = express();
 const port = 3000;
@@ -21,8 +22,8 @@ app.use(express.json());
         const logger = getLogger();
         logger.info('Logger initialized');
 
-        // Iniciar la conexión a la base de datos
-        await DBclient.connect();
+        //Conectar Mongoose
+        await connectDB();
         logger.info('Database connected');
 
         // Rutas
@@ -31,6 +32,7 @@ app.use(express.json());
         });
         app.use('/assistant', assistantRoutes);
         app.use('/alzaid', alzaidDataRoutes);
+        app.use('/users', userRoutes);
 
         // // Iniciar el servidor
         app.listen(port, () => {
