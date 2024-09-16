@@ -1,4 +1,5 @@
 import {User, UserModel} from '../models/userModel';
+import {getLogger} from "../clients/logger";
 
 export class UserDao {
   constructor() {
@@ -15,10 +16,11 @@ export class UserDao {
   }
 
   async getAllUsers(): Promise<User[]> {
+    const logger = getLogger();
     try {
       return UserModel.find({}).exec();
     } catch (error) {
-      console.error('Error fetching users:', error);
+      logger.error('Error fetching users:', error);
       throw error;
     }
   }

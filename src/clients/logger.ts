@@ -1,6 +1,7 @@
 import pino from 'pino';
 import MongoTransport from '../middlewares/mongoTransport';
 import {Db, MongoClient} from "mongodb";
+import pinoPretty from 'pino-pretty';
 
 let logger: pino.Logger | undefined;
 
@@ -26,6 +27,7 @@ async function createLogger() {
         },
     }, pino.multistream([
         {stream: mongoTransport as any},
+        {stream: pinoPretty({ colorize: true })},
     ]));
 }
 

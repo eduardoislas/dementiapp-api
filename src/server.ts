@@ -37,7 +37,6 @@ app.use(express.json());
         // // Iniciar el servidor
         app.listen(port, () => {
             logger.info(`Server is running at http://localhost:${port}`);
-            console.log(`Server is running at http://localhost:${port}`);
         });
     } catch (error) {
         const logger = getLogger();
