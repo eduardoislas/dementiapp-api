@@ -1,8 +1,7 @@
 import {Request, Response} from "express";
-import {UserQuestion} from "../models/assistantModel";
 import {
     checkCompletedStatus,
-    createMessage, getLastThreadMessage,
+    createMessage, getLastThreadMessage, getThreadMessagesList,
     initThread,
     runMessage
 } from "../services/assistantServices"
@@ -13,7 +12,7 @@ export const createThread = async (req: Request, res: Response) => {
     try {
         const thread = await initThread();
         if (thread) {
-            logger.info(`Thread creado ${thread}`);
+            logger.info({ function: "createThread", message: `Thread created ${thread}`})
             res.status(200).json({message: 'Thread created', thread});
         }
     } catch (error) {
@@ -26,8 +25,6 @@ export const userQuestion = async (req: Request, res: Response) => {
     const logger = getLogger();
     try {
         const { userQuestion } = req.body;
-        logger.info(`User Question: ${userQuestion}`);
-        logger.info(`Body: ${req.body}`);
         if (!userQuestion || !userQuestion.threadId || !userQuestion.question) {
             logger.error('Invalid User Question data')
             return res.status(400).json({message: 'Invalid User Question data'});
@@ -37,6 +34,7 @@ export const userQuestion = async (req: Request, res: Response) => {
             logger.error('No message found')
             return res.status(400).json({message: 'No message found'});
         }
+        logger.info({ function: "createMessage", message: `${message}`, threadId: `${userQuestion.threadId}` });
         const assistantId = process.env.ASSISTANT_ID;
         if (!assistantId) {
             logger.error('Assistant ID is not defined in the environment variables')
@@ -44,12 +42,37 @@ export const userQuestion = async (req: Request, res: Response) => {
         }
         const run = await runMessage({threadId: userQuestion.threadId, assistantId: assistantId});
         await checkCompletedStatus({threadId: userQuestion.threadId, runId: run.id});
-        // const messages = await getThreadMessagesList({threadId: userQuestion.threadId})
         const lastMessage = await getLastThreadMessage({threadId: userQuestion.threadId})
-        logger.info(`Mensaje para el thread ${userQuestion.threadId} obtenido`)
+        logger.info({ function: "Response userQuestion", message: `${lastMessage}`, threadId: `${userQuestion.threadId}`});
         res.status(200).json({message: lastMessage});
     } catch (error) {
         logger.error({function: 'User question', message: 'Internal server error'})
         res.status(500).json({message: 'Internal server error'});
     }
 }
+
+export const getThreadMessages = async (req: Request, res: Response) => {
+    const logger = getLogger();
+    try {
+        const { threadId } = req.params;
+        if (!threadId) {
+            logger.error('Invalid threadId provided');
+            return res.status(400).json({ message: 'Invalid threadId provided' });
+        }
+        const messages = await getThreadMessagesList({ threadId });
+        if (!messages || messages.length === 0) {
+            logger.info(`No messages found for thread ${threadId}`);
+            return res.status(404).json({ message: `No messages found for thread ${threadId}` });
+        }
+        logger.info(`Messages retrieved for thread ${threadId}`);
+        logger.info(`Messages  ${messages}`);
+        return res.status(200).json({ messages });
+    } catch (error: any) {
+        logger.error({
+            function: 'getThreadMessages',
+            message: 'Internal server error',
+            error: error.message || error
+        });
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
